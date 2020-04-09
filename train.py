@@ -10,6 +10,7 @@ import time
 import json
 import dmc2gym
 import copy
+from datetime import datetime
 
 import utils
 from logger import Logger
@@ -67,7 +68,7 @@ def parse_args():
     parser.add_argument('--alpha_beta', default=0.5, type=float)
     # misc
     parser.add_argument('--seed', default=1, type=int)
-    parser.add_argument('--work_dir', default='.', type=str)
+    parser.add_argument('--work_dir', default='./log-dev', type=str)
     parser.add_argument('--save_tb', default=False, action='store_true')
     parser.add_argument('--save_model', default=False, action='store_true')
     parser.add_argument('--save_buffer', default=False, action='store_true')
@@ -151,6 +152,10 @@ def main():
     if args.encoder_type == 'pixel':
         env = utils.FrameStack(env, k=args.frame_stack)
 
+    args.work_dir = os.path.join(
+        args.work_dir, f'{args.domain_name}-{args.task_name}-seed{args.seed}-{datetime.now().strftime("%Y%m%d-%H%M")}'
+    )
+
     utils.make_dir(args.work_dir)
     video_dir = utils.make_dir(os.path.join(args.work_dir, 'video'))
     model_dir = utils.make_dir(os.path.join(args.work_dir, 'model'))
@@ -162,6 +167,7 @@ def main():
         json.dump(vars(args), f, sort_keys=True, indent=4)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print("Using device: ", device)
 
     # the dmc2gym wrapper standardizes actions
     assert env.action_space.low.min() >= -1

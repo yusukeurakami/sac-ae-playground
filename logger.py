@@ -1,4 +1,4 @@
-from torch.utils.tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
 from collections import defaultdict
 import json
 import os
